@@ -28,7 +28,9 @@ def items_data(request):
         operation_recroder.info['item_type'] = item_type = prams_dict.get('item_type', None)
         operation_recroder.info['item_info'] = item_info = prams_dict.get('item_info', None)
         if not item_name:
-            return JsonResponse({'status': 'failed', 'code': -3, 'desc': 'itme name %s is invalid' % item_name})
+            return_response =  JsonResponse({'status': 'failed', 'code': -3, 'desc': 'itme name %s is invalid' % item_name})
+            return_response['Access-Control-Allow-Origin'] = '*'
+            return return_response
         # 如果已有此道具，改为更新道具信息
         items_result = Items.objects.using('default').filter(name = item_name)
         if len(items_result) != 0:
@@ -45,14 +47,19 @@ def items_data(request):
         try:
             params_dict = json.loads(request.body)
         except JSONDecodeError:
-            return JsonResponse({'status': 'failed', 'code': -4, 'desc': 'request body %s is not Json format' % request.body})
+            return_response = JsonResponse({'status': 'failed', 'code': -4, 'desc': 'request body %s is not Json format' % request.body})
+            return_response['Access-Control-Allow-Origin'] = '*'
+            return return_response
         item_name = params_dict.get('item_name', None).strip()
         if not item_name:
-            return JsonResponse({'status': 'failed', 'code': -5, 'desc': 'itme name %s is invalid' % item_name})
+            return_response = JsonResponse({'status': 'failed', 'code': -5, 'desc': 'itme name %s is invalid' % item_name})
+            return_response['Access-Control-Allow-Origin'] = '*'
+            return return_response
         items_result = Items.objects.using('default').filter(name = item_name)
         items_result[0].delete()
         operation_recroder.info['item_name'] = item_name
         return_response = JsonResponse({'status': 'success', 'code': 0, 'results': 'item %s has been deleted' % item_name})
     # 记录操作记录并返回    
     operation_recroder.recrod()
+    return_response['Access-Control-Allow-Origin'] = '*'
     return return_response
